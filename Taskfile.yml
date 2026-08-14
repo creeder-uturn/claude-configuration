@@ -1,0 +1,131 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List available tasks
+    silent: true
+    cmds:
+      - task --list
+
+  install:
+    desc: Symlink CLAUDE.md, hooks, skills, agents, and commands from this repo into ~/.claude (backs up existing files first)
+    cmds:
+      - |
+        set -euo pipefail
+        REPO_DIR="{{.TASKFILE_DIR}}"
+        CLAUDE_DIR="$HOME/.claude"
+        BACKUP_DIR="$CLAUDE_DIR/backups/claude-configuration-install-$(date +%Y%m%d%H%M%S)"
+
+        link() {
+          local src="$1" dest="$2"
+          mkdir -p "$(dirname "$dest")"
+          if [ -L "$dest" ]; then
+            if [ "$(readlink "$dest")" = "$src" ]; then
+              echo "ok      $dest (already linked)"
+              return
+            fi
+            echo "relink  $dest"
+            rm "$dest"
+          elif [ -e "$dest" ]; then
+            mkdir -p "$BACKUP_DIR"
+            echo "backup  $dest -> $BACKUP_DIR/$(basename "$dest")"
+            mv "$dest" "$BACKUP_DIR/$(basename "$dest")"
+          else
+            echo "link    $dest"
+          fi
+          ln -s "$src" "$dest"
+        }
+
+        link "$REPO_DIR/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
+        link "$REPO_DIR/hooks/load-agents-md.sh" "$CLAUDE_DIR/hooks/load-agents-md.sh"
+        link "$REPO_DIR/statusline-command.sh" "$CLAUDE_DIR/statusline-command.sh"
+        link "$REPO_DIR/skills/tf-source-local-testing" "$CLAUDE_DIR/skills/tf-source-local-testing"
+        link "$REPO_DIR/agents" "$CLAUDE_DIR/agents"
+        link "$REPO_DIR/commands" "$CLAUDE_DIR/commands"
+
+        cat <<MSG
+
+        Symlinks are in place. A few manual steps remain (shared/stateful
+        files, or externally-managed installs, that this task won't touch):
+
+        1. Settings merge -- merge settings-snippet.json's "hooks",
+           "statusLine", "awsAuthRefresh", and "env" keys into
+           $CLAUDE_DIR/settings.json. Adjust "env.AWS_PROFILE" to your own
+           AWS SSO profile.
+        2. MCP servers -- merge mcp-servers.json's servers into your MCP
+           config, e.g.:
+             claude mcp add-json ref-context '<block>' -s user
+             claude mcp add-json opentofu '<block>' -s user
+           Fill in your own API key for ref-context; it's redacted in the repo.
+        3. Additional skills -- see skills/ADDITIONAL_SKILLS.md, or run
+           \`task install:skills\`.
+        MSG
+
+  sync:
+    desc: Pull mcp-servers.json and settings-snippet.json from the live ~/.claude config (system is the source of truth; secret-shaped values are redacted)
+    cmds:
+      - |
+        set -euo pipefail
+        REPO_DIR="{{.TASKFILE_DIR}}"
+        redact='with_entries(.value = ("<" + (.key | ascii_upcase | gsub("[- ]"; "_")) + ">"))'
+
+        jq "{mcpServers: (.mcpServers // {} | with_entries(
+              .value |= (
+                (if .headers then .headers |= $redact else . end)
+                | (if .env then .env |= $redact else . end)
+              )
+            ))}" "$HOME/.claude.json" > "$REPO_DIR/mcp-servers.json"
+
+        jq --arg home "$HOME" '{
+              hooks: (.hooks // {}),
+              statusLine: (.statusLine // {} | .command |= gsub($home; "~")),
+              awsAuthRefresh: (.awsAuthRefresh // ""),
+              env: (.env // {})
+            }' "$HOME/.claude/settings.json" > "$REPO_DIR/settings-snippet.json"
+
+        echo "Synced mcp-servers.json and settings-snippet.json from ~/.claude.json"
+        echo "and ~/.claude/settings.json. Header/env values in mcp-servers.json were"
+        echo "replaced with <PLACEHOLDER> tags -- review before committing:"
+        echo
+        git -C "$REPO_DIR" status --short -- mcp-servers.json settings-snippet.json
+        git -C "$REPO_DIR" diff --stat -- mcp-servers.json settings-snippet.json
+
+  install:skills:
+    desc: Install additional skills managed by their own upstream tooling or a marketplace plugin, into ~/.claude (see skills/ADDITIONAL_SKILLS.md)
+    cmds:
+      - (cd "$HOME" && npx --yes @playwright/cli install --skills)
+      - |
+        claude plugin marketplace list 2>/dev/null | grep -q rocketry-ai-skills \
+          || claude plugin marketplace add uturndata/rocketry_ai_skills
+      - task: settings:autoupdate
+      - |
+        claude plugin marketplace list 2>/dev/null | grep -q humanizer \
+          || claude plugin marketplace add blader/humanizer
+      - claude plugin install update-template@rocketry-ai-skills
+      - claude plugin install spec-driven-dev@rocketry-ai-skills
+      - claude plugin install wand-cli@rocketry-ai-skills
+      - claude plugin install pin-upgrade-workflow@rocketry-ai-skills
+      - claude plugin install de-slop@rocketry-ai-skills
+      - claude plugin install humanizer@humanizer
+
+  settings:autoupdate:
+    desc: Ensure rocketry-ai-skills auto-updates (no CLI flag for this; re-registering the marketplace silently drops it)
+    cmds:
+      - |
+        jq '.extraKnownMarketplaces["rocketry-ai-skills"].autoUpdate = true' "$HOME/.claude/settings.json" > /tmp/claude-settings-autoupdate.json
+        mv /tmp/claude-settings-autoupdate.json "$HOME/.claude/settings.json"
+        echo "rocketry-ai-skills.autoUpdate = true"
+
+  clean:
+    desc: Remove backups created by previous installs
+    cmds:
+      - rm -rf "$HOME/.claude/backups"/claude-configuration-install-*
+      - echo "Removed install backups under ~/.claude/backups/"
+
+  lint:
+    desc: Shellcheck the hook and status line scripts, and validate JSON config files
+    cmds:
+      - shellcheck hooks/load-agents-md.sh statusline-command.sh
+      - jq empty mcp-servers.json
+      - jq empty settings-snippet.json
+      - echo "OK"
