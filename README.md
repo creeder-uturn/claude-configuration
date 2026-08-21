@@ -17,6 +17,7 @@ kept in a repo so it stays in sync with my live `~/.claude` setup.
 | `agents/`                        | Custom global subagents. Empty for now — one `.md` file per agent.                                                                    |
 | `commands/`                      | Custom global slash commands. Empty for now — one `.md` file per command.                                                            |
 | `mcp-servers.json`               | Global MCP server definitions, secrets redacted.                                                                                      |
+| `bin/claude-mode.sh`             | Toggles `~/.claude/settings.json` between AWS Bedrock and Claude subscription. Symlinked to `~/bin/claude-mode`.                      |
 
 Some skills are managed a different way than the folder + symlink pattern
 above — installed by their own tooling instead (an npm package's
@@ -45,12 +46,13 @@ task install
 Run bare `task` (or `task --list`) to see all available tasks.
 
 `task install` symlinks the repo's `CLAUDE.md`, hook script, status line
-script, skill, `agents/`, and `commands/` into `~/.claude`, in place of
-whatever is there now. Anything real that's already at those paths gets
-backed up (not deleted) to `~/.claude/backups/`. Re-running is safe — it
-no-ops if the links already point at the repo. Use `task clean` to remove
-old install backups once you're confident you don't need them, and
-`task lint` to shellcheck the scripts and validate the JSON config files.
+script, skill, `agents/`, `commands/`, and `bin/claude-mode.sh` into
+`~/.claude` and `~/bin`, in place of whatever is there now. Anything real
+that's already at those paths gets backed up (not deleted) to
+`~/.claude/backups/`. Re-running is safe — it no-ops if the links already
+point at the repo. Use `task clean` to remove old install backups once
+you're confident you don't need them, and `task lint` to shellcheck the
+scripts and validate the JSON config files.
 
 After that, a few manual steps, because they live inside larger files this
 repo shouldn't own outright, or are installed by tooling outside this repo:
@@ -66,15 +68,31 @@ repo shouldn't own outright, or are installed by tooling outside this repo:
    `skills/ADDITIONAL_SKILLS.md` for what that installs and why those
    skills aren't vendored here.
 
+## Switching between Bedrock and subscription
+
+`claude-mode` flips `~/.claude/settings.json` between AWS Bedrock and a
+Claude subscription — the `env.CLAUDE_CODE_USE_BEDROCK` flag and the
+`model` field are the only two keys that matter, so that's all it touches.
+
+```
+claude-mode           # interactive arrow-key picker (needs fzf)
+claude-mode bedrock   # switch to Bedrock directly
+claude-mode sub       # switch to subscription directly
+claude-mode status    # show current mode
+```
+
+Start a new Claude Code session afterwards — `env` is read at startup, so a
+running session won't pick up the change.
+
 ## Staying in sync
 
 The live `~/.claude` setup is always the source of truth. This repo exists
 to document and reproduce it, not the other way around.
 
 `CLAUDE.md`, the hook script, the status line script, `agents/`,
-`commands/`, and `tf-source-local-testing` are symlinks once installed —
-edit them from either side and `git status` here shows the real diff.
-Commit and push as normal.
+`commands/`, `tf-source-local-testing`, and `bin/claude-mode.sh` are
+symlinks once installed — edit them from either side and `git status` here
+shows the real diff. Commit and push as normal.
 
 `mcp-servers.json` and `settings-snippet.json` can't be symlinked — they're
 extracted from files (`~/.claude.json`, `~/.claude/settings.json`) that mix
