@@ -11,15 +11,15 @@ used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 total_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
 
 # Colors (matching ~/bin/set-prompt.sh)
-RESET='\033[0m'
-YELLOW='\033[00;33m'
-CYAN='\033[00;36m'
-LCYAN='\033[01;36m'
-LPURPLE='\033[01;35m'
-WHITE='\033[01;37m'
-LIGHTGRAY='\033[00;37m'
-GREEN='\033[00;32m'
-LRED='\033[01;31m'
+RESET=$'\033[0m'
+YELLOW=$'\033[00;33m'
+CYAN=$'\033[00;36m'
+LCYAN=$'\033[01;36m'
+LPURPLE=$'\033[01;35m'
+WHITE=$'\033[01;37m'
+LIGHTGRAY=$'\033[00;37m'
+GREEN=$'\033[00;32m'
+LRED=$'\033[01;31m'
 
 # Time
 time_part="[$(date +"%I:%M:%S %p")]"
@@ -84,11 +84,11 @@ if [ -n "$total_cost" ] && [ "$total_cost" != "0" ]; then
 fi
 
 # Assemble: Time | Model | Directory | bar ctx% | tokens | cost
-printf "${LIGHTGRAY}${time_part}${RESET}"
-[ -n "$model_part" ]  && printf " ${LIGHTGRAY}|${RESET} ${LPURPLE}${model_part}${RESET}"
-[ "$is_agent" = "true" ] && printf " ${LRED}[agent]${RESET}"
-printf " ${LIGHTGRAY}|${RESET} ${YELLOW}${dir_part}${RESET}"
-[ -n "$git_part" ]    && printf " ${LIGHTGRAY}|${RESET} ${git_part}"
+printf "${LIGHTGRAY}%s${RESET}" "${time_part}"
+[ -n "$model_part" ]  && printf " ${LIGHTGRAY}|${RESET} ${LPURPLE}%s${RESET}" "${model_part}"
+[ "$is_agent" = "true" ] && printf " %s[agent]%s" "${LRED}" "${RESET}"
+printf " ${LIGHTGRAY}|${RESET} ${YELLOW}%s${RESET}" "${dir_part}"
+[ -n "$git_part" ]    && printf " ${LIGHTGRAY}|${RESET} %s" "${git_part}"
 [ -n "$ctx_part" ]    && printf " ${LIGHTGRAY}|${RESET} ${ctx_bar} ${WHITE}%s${RESET}" "${ctx_part}"
 [ -n "$cost_part" ]   && printf " ${LIGHTGRAY}|${RESET} ${GREEN}%s${RESET}" "${cost_part}"
 printf "\n"
