@@ -8,7 +8,7 @@ tasks:
       - task --list
 
   install:
-    desc: Symlink CLAUDE.md, hooks, skills, agents, and commands from this repo into ~/.claude (backs up existing files first)
+    desc: Symlink CLAUDE.md, hooks, skills, agents, commands, and bin scripts from this repo into ~/.claude and ~/bin (backs up existing files first)
     cmds:
       - |
         set -euo pipefail
@@ -42,6 +42,7 @@ tasks:
         link "$REPO_DIR/skills/tf-source-local-testing" "$CLAUDE_DIR/skills/tf-source-local-testing"
         link "$REPO_DIR/agents" "$CLAUDE_DIR/agents"
         link "$REPO_DIR/commands" "$CLAUDE_DIR/commands"
+        link "$REPO_DIR/bin/claude-mode.sh" "$HOME/bin/claude-mode"
 
         cat <<MSG
 
@@ -125,7 +126,7 @@ tasks:
   lint:
     desc: Shellcheck the hook and status line scripts, and validate JSON config files
     cmds:
-      - shellcheck hooks/load-agents-md.sh statusline-command.sh
+      - shellcheck hooks/load-agents-md.sh statusline-command.sh bin/claude-mode.sh
       - jq empty mcp-servers.json
       - jq empty settings-snippet.json
       - echo "OK"
