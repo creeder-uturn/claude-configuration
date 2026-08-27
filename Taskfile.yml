@@ -51,9 +51,9 @@ tasks:
         files, or externally-managed installs, that this task won't touch):
 
         1. Settings merge -- merge settings-snippet.json's "hooks",
-           "statusLine", "awsAuthRefresh", and "env" keys into
-           $CLAUDE_DIR/settings.json. Adjust "env.AWS_PROFILE" to your own
-           AWS SSO profile.
+           "statusLine", "attribution", "awsAuthRefresh", and "env" keys
+           into $CLAUDE_DIR/settings.json. Adjust "env.AWS_PROFILE" to your
+           own AWS SSO profile.
         2. MCP servers -- merge mcp-servers.json's servers into your MCP
            config, e.g.:
              claude mcp add-json ref-context '<block>' -s user
@@ -81,6 +81,7 @@ tasks:
         jq --arg home "$HOME" '{
               hooks: (.hooks // {}),
               statusLine: (.statusLine // {} | .command |= gsub($home; "~")),
+              attribution: (.attribution // {}),
               awsAuthRefresh: (.awsAuthRefresh // ""),
               env: (.env // {})
             }' "$HOME/.claude/settings.json" > "$REPO_DIR/settings-snippet.json"

@@ -12,7 +12,7 @@ kept in a repo so it stays in sync with my live `~/.claude` setup.
 | `rules/`                         | Path-scoped global rules (`~/.claude/rules/`). Frontmatter `paths:` globs load a file only when matching files are in context — e.g. `terraform.md`, `taskfile.md`, `prose.md`.  |
 | `hooks/load-agents-md.sh`        | The only custom hook script in use.                                                                                                   |
 | `statusline-command.sh`          | Status line script.                                                                                                                   |
-| `settings-snippet.json`          | The `settings.json` keys that register the hook and status line above, plus the AWS profile/env vars that drive Bedrock access.       |
+| `settings-snippet.json`          | The `settings.json` keys that register the hook and status line above, the commit attribution settings, plus the AWS profile/env vars that drive Bedrock access. |
 | `skills/tf-source-local-testing` | Custom global skill, authored locally; no upstream to track.                                                                          |
 | `skills/ADDITIONAL_SKILLS.md`    | Skills better installed via their own tooling or a marketplace plugin than vendored (e.g. `playwright-cli`, `wand-cli`, `humanizer`). |
 | `agents/`                        | Custom global subagents. Empty for now: one `.md` file per agent.                                                                     |
@@ -29,8 +29,8 @@ command instead. See that file for the full list and how to tell the two
 patterns apart.
 
 Deliberately left out, full stop: the rest of `settings.json` (model pin,
-attribution, effort level, auto-update channel). Machine-specific, not
-worth tracking anywhere.
+effort level, auto-update channel). Machine-specific, not worth tracking
+anywhere.
 
 ## Setup
 
@@ -58,8 +58,8 @@ scripts and validate the JSON config files.
 After that, a few manual steps, because they live inside larger files this
 repo shouldn't own outright, or are installed by tooling outside this repo:
 
-1. **Settings merge**: merge the `hooks`, `statusLine`, `awsAuthRefresh`,
-   and `env` keys from `settings-snippet.json` into your
+1. **Settings merge**: merge the `hooks`, `statusLine`, `attribution`,
+   `awsAuthRefresh`, and `env` keys from `settings-snippet.json` into your
    `~/.claude/settings.json`. Change `env.AWS_PROFILE` (and
    `awsAuthRefresh`) to your own AWS SSO profile.
 2. **MCP servers**: add the servers from `mcp-servers.json`, e.g.
@@ -98,9 +98,10 @@ shows the real diff. Commit and push as normal.
 `mcp-servers.json` and `settings-snippet.json` can't be symlinked: they're
 extracted from files (`~/.claude.json`, `~/.claude/settings.json`) that mix
 this config with per-machine state and secrets. Run `task sync` after
-changing MCP servers, hooks, the status line, or the AWS env vars, to pull
-the current `mcpServers`, `hooks`, `statusLine`, `awsAuthRefresh`, and `env`
-blocks out of those files with `jq` and overwrite the copies here.
+changing MCP servers, hooks, the status line, attribution, or the AWS env
+vars, to pull the current `mcpServers`, `hooks`, `statusLine`,
+`attribution`, `awsAuthRefresh`, and `env` blocks out of those files with
+`jq` and overwrite the copies here.
 Header/env values in `mcp-servers.json` get replaced with `<PLACEHOLDER>`
 tags automatically, but review the diff before committing; `task sync`
 prints one.
