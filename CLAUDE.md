@@ -58,7 +58,7 @@ essentials:
 
 - **Always use tf** - Use the `tf` command, not `tofu` or `terraform`. If it fails for lack of a `.opentofu-version` or `.terraform-version` file, tell the user and pause.
 
-- **Never truncate `tf` output** - Redirect full plan/apply output to a file (e.g. `/tmp/claude/<project>/plan.txt`); never pipe through `head`/`tail` or any length filter — truncation hides deletions and replacement cascades.
+- **Never truncate `tf` output** - Redirect full plan/apply output to a file in the session scratchpad directory (e.g. `<scratchpad>/plan.txt`); never pipe through `head`/`tail` or any length filter — truncation hides deletions and replacement cascades.
 
 - TF and AWS commands must set an `AWS_PROFILE` (or `--profile`). If unsure which profile, ask the user and pause.
 
@@ -72,7 +72,7 @@ Taskfile is in context.
 
 ### When calling Bash:
 
-- Prefer creating scripts in `/tmp/claude/<project>` for multiline shell commands instead of running them directly.
+- Prefer creating scripts in the session scratchpad directory (given in the environment block; e.g. `/private/tmp/claude-<uid>/<project>/<session>/scratchpad`) for multiline shell commands instead of running them directly. Fall back to `/tmp/claude/<project>` only if no scratchpad directory is provided.
 - **I have GNU sed installed, not BSD sed**, make sure all sed commands follow that syntax
 - **Be aware of the current working directory and avoid `cd` whenever possible**: the Bash tool persists `cwd` between commands within a session — it is almost never necessary to `cd` at all. Before issuing a Bash call, check the environment block for the current working directory and the project's primary/additional working directories; if the command's target is already reachable from there, just use a relative or absolute path. Reach for `cd` only when you genuinely need to switch contexts (e.g., running `npm` in a sub-package that resolves config from its own directory), and prefer absolute paths in command arguments over `cd` to that directory first.
 

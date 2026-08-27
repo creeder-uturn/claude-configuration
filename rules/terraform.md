@@ -12,7 +12,7 @@ paths:
 
 - Never `-auto-approve` in a real environment. It is only acceptable when explicitly told to use it in a limited sandbox/testing capacity.
 
-- **Terraform output must never be truncated**: always capture the full output to a file (e.g. redirect to `/tmp/claude/<project>/plan.txt`); never pipe through `head`, `tail`, or any length-limiting filter — truncated plans hide resource deletions and replacement cascades. Use the Bash tool's output directly or redirect to a file and `Read` it — avoid `2>&1 | tee`.
+- **Terraform output must never be truncated**: always capture the full output to a file in the session scratchpad directory (e.g. redirect to `<scratchpad>/plan.txt`); never pipe through `head`, `tail`, or any length-limiting filter — truncated plans hide resource deletions and replacement cascades. Use the Bash tool's output directly or redirect to a file and `Read` it — avoid `2>&1 | tee`.
 
 - **OpenTofu is preferred over Terraform** - Generally, \*.tf code is OpenTofu, not Terraform. Terraform code will have a `.terraform-version` file with it.
 
