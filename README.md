@@ -9,6 +9,7 @@ kept in a repo so it stays in sync with my live `~/.claude` setup.
 | Included                         | Why                                                                                                                                   |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | `CLAUDE.md`                      | Global instructions, applies to every project.                                                                                        |
+| `rules/`                         | Path-scoped global rules (`~/.claude/rules/`). Frontmatter `paths:` globs load a file only when matching files are in context — e.g. `terraform.md`, `taskfile.md`, `prose.md`.  |
 | `hooks/load-agents-md.sh`        | The only custom hook script in use.                                                                                                   |
 | `statusline-command.sh`          | Status line script.                                                                                                                   |
 | `settings-snippet.json`          | The `settings.json` keys that register the hook and status line above, plus the AWS profile/env vars that drive Bedrock access.       |
@@ -45,8 +46,8 @@ task install
 
 Run bare `task` (or `task --list`) to see all available tasks.
 
-`task install` symlinks the repo's `CLAUDE.md`, hook script, status line
-script, skill, `agents/`, `commands/`, and `bin/claude-mode.sh` into
+`task install` symlinks the repo's `CLAUDE.md`, `rules/`, hook script, status
+line script, skill, `agents/`, `commands/`, and `bin/claude-mode.sh` into
 `~/.claude` and `~/bin`, in place of whatever is there now. Anything real
 that's already at those paths gets backed up (not deleted) to
 `~/.claude/backups/`. Re-running is safe: it no-ops if the links already
@@ -89,7 +90,7 @@ and a running session won't pick up the change.
 The live `~/.claude` setup is always the source of truth. This repo exists
 to document and reproduce it, not the other way around.
 
-`CLAUDE.md`, the hook script, the status line script, `agents/`,
+`CLAUDE.md`, `rules/`, the hook script, the status line script, `agents/`,
 `commands/`, `tf-source-local-testing`, and `bin/claude-mode.sh` are
 symlinks once installed: edit them from either side and `git status` here
 shows the real diff. Commit and push as normal.

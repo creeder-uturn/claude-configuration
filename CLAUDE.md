@@ -26,7 +26,6 @@ In word choice and language:
 - **Plan before non-trivial changes** — For 3+ step or architectural work, write the plan first, execute second, replan if reality diverges. Skip for mechanical one-liners.
 
 - **When possible, prove work is complete** - Run tests, formatters, linters (if relevant). If verification isn't possible, say so explicitly.
-  - One exception: for OpenTofu/Terraform code, if `tf fmt` runs clean, running `tf validate` as an additional verification step is not required.
 
 - Don't touch what you weren't asked to touch: No drive-by refactors, no unsolicited formatting changes, no adding types/comments to untouched code — unless explicitly asked for a thorough review.
 
@@ -51,41 +50,25 @@ In word choice and language:
 
 - **Don't create a git tag unless specifically asked.** - If you are going to create a git tag, make sure that there's not a CI workflow already responsible for it.
 
-### Terraform/OpenTofu — commands & permissions:
+### Terraform/OpenTofu:
 
-- **Always use tf** - When running terraform or opentofu commands, always use the `tf` command, instead of `tofu` or `terraform`. If that command fails due to lack of `.opentofu-version` or `.terraform-version` file, let the user know and pause.
+Full conventions (commands & permissions, code style, verification) load from
+`~/.claude/rules/terraform.md` when a `.tf`/`.tofu` file is in context. Always-on
+essentials:
 
-- **No risky commands** - Only run `tf init`, `tf validate`, and `tf fmt` without explicit prompting. Do not run any other `tf` commands unless explicitly prompted.
+- **Always use tf** - Use the `tf` command, not `tofu` or `terraform`. If it fails for lack of a `.opentofu-version` or `.terraform-version` file, tell the user and pause.
 
-- Never `-auto-approve` in a real environment. It is only acceptable when explicitly told to use it in a limited sandbox/testing capacity.
+- **Never truncate `tf` output** - Redirect full plan/apply output to a file (e.g. `/tmp/claude/<project>/plan.txt`); never pipe through `head`/`tail` or any length filter — truncation hides deletions and replacement cascades.
 
-- **Terraform output must never be truncated**: always capture the full output to a file (e.g. redirect to `/tmp/claude/<project>/plan.txt`); never pipe through `head`, `tail`, or any length-limiting filter — truncated plans hide resource deletions and replacement cascades. Use the Bash tool's output directly or redirect to a file and `Read` it — avoid `2>&1 | tee`.
-
-- **OpenTofu is preferred over Terraform** - Generally, \*.tf code is OpenTofu, not Terraform. Terraform code will have a `.terraform-version` file with it.
-
-- OpenTofu is a fork of Terraform, so most things that apply to Terraform also apply to OpenTofu.
-
-- TF and AWS commands should always set an AWS_PROFILE (or --profile). If you are unsure of the profile to use for a given repository or project folder, ask the user and pause.
-
-### Terraform/OpenTofu — code conventions:
-
-- **IAM policies**: Always use `data "aws_iam_policy_document"` over `jsonencode()` for IAM policy JSON in Terraform/OpenTofu.
-
-- **State backend can have local values** - OpenTofu supports local (static) values in state backend - follow the repositories conventions when writing a backend configuration (or `config.tf` file)
+- TF and AWS commands must set an `AWS_PROFILE` (or `--profile`). If unsure which profile, ask the user and pause.
 
 ### Taskfile conventions:
 
-- **Prefer Taskfile.yml for repeated tasks** - Examples include `build`, `clean`, `test`.
+Authoring conventions (`default` task, `desc`, shared vocabulary, `deps:`
+composition, `clean` semantics) load from `~/.claude/rules/taskfile.md` when a
+Taskfile is in context.
 
-- **`default` task lists tasks, silently** - Include a `default` task that runs `task --list` with `silent: true`, so running bare `task` is discoverable instead of erroring.
-
-- **Every task has a `desc`** - No undocumented tasks; `desc` is what makes `task --list` self-documenting.
-
-- **Reuse the same task vocabulary across repos** - Prefer consistent verbs (`build`, `test`, `clean`, `install`, `tidy`/`lint`/`fmt`) instead of inventing repo-specific names, so the same command works from muscle memory in any project.
-
-- **Compose with `deps:` instead of duplicating commands** - e.g. `install` should depend on `build-local` rather than repeating the build command.
-
-- **`clean` removes whatever "clean" should mean for the project** - Build artifacts, temporary files, caches, etc. Not every project needs a `clean` task. Do not fold in broad or destructive deletes (e.g. `git clean`-style behavior).
+- **Prefer Taskfile.yml for repeated tasks** - Examples include `build`, `clean`, `test`. If a project has a `Taskfile.yml`, use it.
 
 ### When calling Bash:
 
