@@ -10,6 +10,8 @@ paths:
 
 - **No risky commands** - Only run `tf init`, `tf validate`, and `tf fmt` without explicit prompting. Do not run any other `tf` commands unless explicitly prompted.
 
+- **Never modify or delete files inside the `.terraform/` cache folder** - It is provider/module download cache managed by `tf init`. Reading it for investigative purposes when absolutely necessary is fine; editing or deleting its contents is not.
+
 - Never `-auto-approve` in a real environment. It is only acceptable when explicitly told to use it in a limited sandbox/testing capacity.
 
 - **Terraform output must never be truncated**: always capture the full output to a file in the session scratchpad directory (e.g. redirect to `<scratchpad>/plan.txt`); never pipe through `head`, `tail`, or any length-limiting filter — truncated plans hide resource deletions and replacement cascades. Use the Bash tool's output directly or redirect to a file and `Read` it — avoid `2>&1 | tee`.
