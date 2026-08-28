@@ -50,6 +50,10 @@ In word choice and language:
 
 - **Don't create a git tag unless specifically asked.** - If you are going to create a git tag, make sure that there's not a CI workflow already responsible for it.
 
+### pre-commit:
+
+- **Use `prek`, not `pre-commit`** - `prek` is a drop-in replacement (same `.pre-commit-config.yaml`, same subcommands: `prek run`, `prek run --all-files`). Fall back to `pre-commit` only if `prek` is not installed.
+
 ### Terraform/OpenTofu:
 
 Full conventions (commands & permissions, code style, verification) load from
