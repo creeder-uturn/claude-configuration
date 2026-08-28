@@ -13,8 +13,7 @@ kept in a repo so it stays in sync with my live `~/.claude` setup.
 | `hooks/load-agents-md.sh`        | The only custom hook script in use.                                                                                                   |
 | `statusline-command.sh`          | Status line script.                                                                                                                   |
 | `settings-snippet.json`          | The `settings.json` keys that register the hook and status line above, the commit attribution settings, plus the AWS profile/env vars that drive Bedrock access. |
-| `skills/tf-source-local-testing` | Custom global skill, authored locally; no upstream to track.                                                                          |
-| `skills/ADDITIONAL_SKILLS.md`    | Skills better installed via their own tooling or a marketplace plugin than vendored (e.g. `playwright-cli`, `wand-cli`, `humanizer`). |
+| `skills/ADDITIONAL_SKILLS.md`    | Skills better installed via their own tooling or a marketplace plugin than vendored (e.g. `playwright-cli`, `wand-cli`, `humanizer`). No skills are vendored under `skills/` right now. |
 | `agents/`                        | Custom global subagents. Empty for now: one `.md` file per agent.                                                                     |
 | `commands/`                      | Custom global slash commands. Empty for now: one `.md` file per command.                                                              |
 | `mcp-servers.json`               | Global MCP server definitions, secrets redacted.                                                                                      |
@@ -47,7 +46,7 @@ task install
 Run bare `task` (or `task --list`) to see all available tasks.
 
 `task install` symlinks the repo's `CLAUDE.md`, `rules/`, hook script, status
-line script, skill, `agents/`, `commands/`, and `bin/claude-mode.sh` into
+line script, `agents/`, `commands/`, and `bin/claude-mode.sh` into
 `~/.claude` and `~/bin`, in place of whatever is there now. Anything real
 that's already at those paths gets backed up (not deleted) to
 `~/.claude/backups/`. Re-running is safe: it no-ops if the links already
@@ -91,9 +90,9 @@ The live `~/.claude` setup is always the source of truth. This repo exists
 to document and reproduce it, not the other way around.
 
 `CLAUDE.md`, `rules/`, the hook script, the status line script, `agents/`,
-`commands/`, `tf-source-local-testing`, and `bin/claude-mode.sh` are
-symlinks once installed: edit them from either side and `git status` here
-shows the real diff. Commit and push as normal.
+`commands/`, and `bin/claude-mode.sh` are symlinks once installed: edit them
+from either side and `git status` here shows the real diff. Commit and push
+as normal.
 
 `mcp-servers.json` and `settings-snippet.json` can't be symlinked: they're
 extracted from files (`~/.claude.json`, `~/.claude/settings.json`) that mix

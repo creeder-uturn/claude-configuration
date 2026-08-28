@@ -8,7 +8,7 @@ tasks:
       - task --list
 
   install:
-    desc: Symlink CLAUDE.md, rules, hooks, skills, agents, commands, and bin scripts from this repo into ~/.claude and ~/bin (backs up existing files first)
+    desc: Symlink CLAUDE.md, rules, hooks, agents, commands, and bin scripts from this repo into ~/.claude and ~/bin (backs up existing files first)
     cmds:
       - |
         set -euo pipefail
@@ -40,7 +40,6 @@ tasks:
         link "$REPO_DIR/rules" "$CLAUDE_DIR/rules"
         link "$REPO_DIR/hooks/load-agents-md.sh" "$CLAUDE_DIR/hooks/load-agents-md.sh"
         link "$REPO_DIR/statusline-command.sh" "$CLAUDE_DIR/statusline-command.sh"
-        link "$REPO_DIR/skills/tf-source-local-testing" "$CLAUDE_DIR/skills/tf-source-local-testing"
         link "$REPO_DIR/agents" "$CLAUDE_DIR/agents"
         link "$REPO_DIR/commands" "$CLAUDE_DIR/commands"
         link "$REPO_DIR/bin/claude-mode.sh" "$HOME/bin/claude-mode"

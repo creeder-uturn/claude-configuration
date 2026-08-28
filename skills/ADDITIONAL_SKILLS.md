@@ -1,7 +1,7 @@
 # Additional skills (not vendored here)
 
-`skills/` in this repo only holds skills authored here, with no
-upstream to track (see `tf-source-local-testing`). Some skills are better
+`skills/` in this repo is reserved for skills authored here with no
+upstream to track; none are vendored there right now. Some skills are better
 installed with their own tooling instead of vendored as a static copy —
 vendoring would drift from whatever version/reference docs the upstream
 package ships.
