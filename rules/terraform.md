@@ -10,6 +10,10 @@ paths:
 
 - **No risky commands** - Only run `tf init`, `tf validate`, and `tf fmt` without explicit prompting. Do not run any other `tf` commands unless explicitly prompted.
 
+- **No `-upgrade`** - Do not pass `-upgrade` to `tf init` unless the user asks for it or the task is explicitly a provider/module version upgrade. It silently moves version pins.
+
+- **Avoid `-backend=false`** - Run a normal `tf init`. Only use `-backend=false` when it is genuinely unavoidable (e.g. the backend is unreachable and the task only needs `validate`). It is not a default for a quick init. If the barrier is authentication, do not assume the backend is unreachable — ask the user to authenticate, or offer to run `aws sso login`, and pause.
+
 - **Never modify or delete files inside the `.terraform/` cache folder** - It is provider/module download cache managed by `tf init`. Reading it for investigative purposes when absolutely necessary is fine; editing or deleting its contents is not.
 
 - Never `-auto-approve` in a real environment. It is only acceptable when explicitly told to use it in a limited sandbox/testing capacity.
